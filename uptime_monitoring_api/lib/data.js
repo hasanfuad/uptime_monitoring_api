@@ -45,4 +45,56 @@ lib.read = (dir, file, callback) => {
 
 }
 
+// update existing file
+lib.update = (dir, file, data, callback) => {
+    // file open for writing
+    fs.open(`${lib.basedir + dir}/${file}.json`, 'r+', (err, fileDescriptor) => {
+        if(!err && fileDescriptor){
+            // convert the data to string
+            const stringData = JSON.stringify(data);
+
+            // truncate the file 
+            fs.ftruncate(fileDescriptor, (err) => {
+                if(!err){
+                    // write to the file and close it
+                    fs.writeFile(fileDescriptor, stringData, (err)=>{
+                        if(!err) {
+                            // close the file
+                            fs.close(fileDescriptor, (err) => {
+                                if(!err) {
+                                    callback(false)
+                                }
+                                else{
+                                    callback('Error closing the file')
+
+                                }
+                            });
+
+                        } else {
+                            callback('Error writing to the file');
+                        }
+                    })
+
+                } else {
+                    console.log('Error truncating file!');
+                }
+            })
+
+        } else{
+            console.log(`Error updating. File may not exist`);
+        }
+    })
+
+}
+
+lib.delete = (dir, file, callback) => {
+    fs.unlink(`${lib.basedir + dir}/${file}.json`, (err) => {
+        if(!err){
+            callback(false);
+        } else{
+            callback(`Error deleting file`);
+        }
+    })
+}
+
 module.exports = lib;
