@@ -8,6 +8,7 @@
 // dependencies
 const { hash } = require("../../helpers/utilities");
 const data = require("../../lib/data");
+const {parseJSON} = require("../../helpers/utilities")
 
 // module scaffolding
 
@@ -101,6 +102,17 @@ handler._users.get = (requestProperties, callback) => {
 
     if(phone) {
         // finding the user
+        data.read('users', phone, (err, u) => {
+            const user = {...parseJSON(u)};
+            if(!err && user){
+                delete user.password;
+                callback(200, user)
+            } else{
+                callback(404, {
+                    error: "Requested user was not found!"
+                })
+            }
+        })
 
     } else{
         callback(404, {
